@@ -1,0 +1,7 @@
+.gitignore
+*~
+.settings
+.c9*
+prebuilds/
+# Exclude the build directory
+build/
