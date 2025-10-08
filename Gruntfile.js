@@ -1,4 +1,4 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
     grunt.initConfig({
         shell: {
             'node-pre-gyp-ia32': {
@@ -20,16 +20,16 @@ module.exports = function(grunt) {
         copy: {
             ia32: {
                 files: [
-                    {src: 'build/Release/electron-printer.node', dest: 'lib/electron-printer-' + process.platform + '-ia32.node'},
-                    {src: 'binding.js', dest: 'lib/binding.js'},
-                    {src: 'index.js', dest: 'lib/index.js'}
+                    { src: 'build/Release/node-printer-electron.node', dest: 'lib/electron-printer-' + process.platform + '-ia32.node' },
+                    { src: 'binding.js', dest: 'lib/binding.js' },
+                    { src: 'index.js', dest: 'lib/index.js' }
                 ]
             },
             x64: {
                 files: [
-                    {src: 'build/Release/electron-printer.node', dest: 'lib/electron-printer-' + process.platform + '-x64.node'},
-                    {src: 'binding.js', dest: 'lib/binding.js'},
-                    {src: 'index.js', dest: 'lib/index.js'}
+                    { src: 'build/Release/node-printer-electron.node', dest: 'lib/electron-printer-' + process.platform + '-x64.node' },
+                    { src: 'binding.js', dest: 'lib/binding.js' },
+                    { src: 'index.js', dest: 'lib/index.js' }
                 ]
             }
         }
