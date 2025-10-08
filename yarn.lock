@@ -1169,9 +1169,10 @@ node-gyp@>=3:
     tinyglobby "^0.2.12"
     which "^5.0.0"
 
-"node-pre-gyp-github@github:Susheer/node-pre-gyp-github":
+node-pre-gyp-github@^2.0.0:
   version "2.0.0"
-  resolved "https://codeload.github.com/Susheer/node-pre-gyp-github/tar.gz/5c8494d668c18738f8c9dee2f4061b9575dd945c"
+  resolved "https://registry.yarnpkg.com/node-pre-gyp-github/-/node-pre-gyp-github-2.0.0.tgz#8095f4a7bdee418df9406a774ad4719d67dc571f"
+  integrity sha512-cTc6dRK3Sa4z+Z/1QAtAQErnaePir83ZveUz80VLK11zeYokt4cNJ6Aexoi58cSJ7xGvgZJImUeD1vIl2e7pjQ==
   dependencies:
     "@octokit/rest" "20.1.1"
     commander "12.0.0"

@@ -4,25 +4,25 @@ let addon = {}, binary_path;
 switch (os.platform()) {
     case 'win32':
         if (os.arch() === 'ia32') {
-            binary_path = path.join(__dirname, 'electron-printer-win32-ia32.node');
+            binary_path = path.join(__dirname, 'node-printer-electron-win32-ia32.node');
         } else if (os.arch() === 'x64') {
-            binary_path = path.join(__dirname, 'electron-printer-win32-x64.node');
+            binary_path = path.join(__dirname, 'node-printer-electron-win32-x64.node');
         }
         addon = require(binary_path);
         break;
     case 'darwin':
-        binary_path = path.join(__dirname, 'electron_printer.node'); 
+        binary_path = path.join(__dirname, 'node-printer-electron.node');
         addon = require(binary_path);
         break;
     case 'linux':
         if (os.arch() === 'ia32') {
-            addon = path.join(__dirname, 'electron_printer.node');
+            addon = path.join(__dirname, 'node-printer-electron.node');
         } else if (os.arch() === 'x64') {
-            addon = path.join(__dirname, 'electron_printer.node');
+            addon = path.join(__dirname, 'node-printer-electron.node');
         }
         break;
     default:
-        binary_path = path.join(__dirname, 'electron_printer.node'); 
+        binary_path = path.join(__dirname, 'node-printer-electron.node');
         addon = require(binary_path);
 }
 
@@ -58,7 +58,7 @@ module.exports.getSupportedPrintFormats = addon.getSupportedPrintFormats;
  success - Function, optional, callback function with first argument job_id
  error - Function, optional, callback function if exists any error
  */
- function printDirect(parameters){
+function printDirect(parameters) {
     var data = parameters
         , printer
         , docname
@@ -67,17 +67,17 @@ module.exports.getSupportedPrintFormats = addon.getSupportedPrintFormats;
         , success
         , error;
 
-    if(arguments.length==1){
+    if (arguments.length == 1) {
         //TODO: check parameters type
         //if (typeof parameters )
         data = parameters.data;
         printer = parameters.printer;
         docname = parameters.docname;
         type = parameters.type;
-        options = parameters.options||{};
+        options = parameters.options || {};
         success = parameters.success;
         error = parameters.error;
-    }else{
+    } else {
         printer = arguments[1];
         type = arguments[2];
         docname = arguments[3];
@@ -86,39 +86,39 @@ module.exports.getSupportedPrintFormats = addon.getSupportedPrintFormats;
         error = arguments[6];
     }
 
-    if(!type){
+    if (!type) {
         type = "RAW";
     }
 
     // Set default printer name
-    if(!printer) {
+    if (!printer) {
         printer = addon.getDefaultPrinterName();
     }
 
     type = type.toUpperCase();
 
-    if(!docname){
+    if (!docname) {
         docname = "node print job";
     }
 
-    if (!options){
+    if (!options) {
         options = {};
     }
 
     //TODO: check parameters type
-    if(addon.printDirect){// call C++ binding
-        try{
+    if (addon.printDirect) {// call C++ binding
+        try {
             data += '\x1D\x56\x00';
             var res = addon.printDirect(data, printer, docname, type, options);
-            if(res){
+            if (res) {
                 success(res);
-            }else{
+            } else {
                 error(Error("Something wrong in printDirect"));
             }
-        }catch (e){
+        } catch (e) {
             error(e);
         }
-    }else{
+    } else {
         error("Not supported");
     }
 }
@@ -128,38 +128,37 @@ module.exports.getSupportedPrintFormats = addon.getSupportedPrintFormats;
  * @return printer object info:
  *		TODO: to enum all possible attributes
  */
- function getPrinter(printerName)
- {
-     if(!printerName) {
-         printerName = addon.getDefaultPrinterName();
-     }
-     var printer = addon.getPrinter(printerName);
-     correctPrinterinfo(printer);
-     return printer;
- }
+function getPrinter(printerName) {
+    if (!printerName) {
+        printerName = addon.getDefaultPrinterName();
+    }
+    var printer = addon.getPrinter(printerName);
+    correctPrinterinfo(printer);
+    return printer;
+}
 
 
 function correctPrinterinfo(printer) {
-    if(printer.status || !printer.options || !printer.options['printer-state']){
+    if (printer.status || !printer.options || !printer.options['printer-state']) {
         return;
     }
 
     var status = printer.options['printer-state'];
     // Add posix status
-    if(status == '3'){
+    if (status == '3') {
         status = 'IDLE'
     }
-    else if(status == '4'){
+    else if (status == '4') {
         status = 'PRINTING'
     }
-    else if(status == '5'){
+    else if (status == '5') {
         status = 'STOPPED'
     }
 
     // correct date type
     var k;
-    for(k in printer.options) {
-        if(/time$/.test(k) && printer.options[k] && !(printer.options[k] instanceof Date)) {
+    for (k in printer.options) {
+        if (/time$/.test(k) && printer.options[k] && !(printer.options[k] instanceof Date)) {
             printer.options[k] = new Date(printer.options[k] * 1000);
         }
     }
@@ -176,7 +175,7 @@ parameters:
       success - Function, optional, callback function
       error - Function, optional, callback function if exists any error
 */
-function printFile(parameters){
+function printFile(parameters) {
     var filename,
         docname,
         printer,
@@ -184,7 +183,7 @@ function printFile(parameters){
         success,
         error;
 
-    if((arguments.length !== 1) || (typeof(parameters) !== 'object')){
+    if ((arguments.length !== 1) || (typeof (parameters) !== 'object')) {
         throw new Error('must provide arguments object');
     }
 
@@ -195,42 +194,42 @@ function printFile(parameters){
     success = parameters.success;
     error = parameters.error;
 
-    if(!success){
-        success = function(){};
+    if (!success) {
+        success = function () { };
     }
 
-    if(!error){
-        error = function(err){
+    if (!error) {
+        error = function (err) {
             throw err;
         };
     }
 
-    if(!filename){
+    if (!filename) {
         var err = new Error('must provide at least a filename');
         return error(err);
     }
 
     // try to define default printer name
-    if(!printer) {
+    if (!printer) {
         printer = addon.getDefaultPrinterName();
     }
 
-    if(!printer) {
+    if (!printer) {
         return error(new Error('Printer parameter of default printer is not defined'));
     }
 
     // set filename if docname is missing
-    if(!docname){
+    if (!docname) {
         docname = filename;
     }
 
     //TODO: check parameters type
-    if(addon.printFile){// call C++ binding
-        try{
+    if (addon.printFile) {// call C++ binding
+        try {
             // TODO: proper success/error callbacks from the extension
             var res = addon.printFile(filename, docname, printer, options);
 
-            if(!isNaN(parseInt(res))) {
+            if (!isNaN(parseInt(res))) {
                 success(res);
             } else {
                 error(Error(res));
