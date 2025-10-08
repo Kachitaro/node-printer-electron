@@ -1,0 +1,97 @@
+name: Prebuild Binaries
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+  release:
+    types: [published]
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  prebuild-linux:
+    name: Prebuild Binaries for Linux (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["18.x", "20.x", "22.x"]
+    timeout-minutes: 30
+    steps:
+      - name: Setup Dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update -y -qq
+          sudo apt-get install -y g++-multilib gcc-multilib libcups2-dev libcups2-dev:i386 libc6-dev-i386 linux-libc-dev linux-libc-dev:i386
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
+      - run: npm i
+      - name: Prebuild
+        run: |
+          npm run apply-patches
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            npm run prebuild -- --strip --all --arch ia32 -u "${{ secrets.GITHUB_TOKEN }}"
+            npm run prebuild -- --strip --all --arch x64 -u "${{ secrets.GITHUB_TOKEN }}"
+          else
+            npm run prebuild -- --strip --all --arch ia32
+            npm run prebuild -- --strip --all --arch x64
+          fi
+
+  prebuild-macos:
+    name: Prebuild Binaries for macOS (Node ${{ matrix.node-version }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["18.x", "20.x", "22.x"]
+        arch: ["x64", "arm64"]
+    # run x64 always, run arm64 only on tags or release events
+    if: >-
+      matrix.arch == 'x64' || startsWith(github.ref, 'refs/tags/') || github.event_name == 'release'
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
+      - run: npm i
+      - name: Prebuild
+        run: |
+          npm run apply-patches
+          if { [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" = "refs/heads/main" ]; } || [[ "$GITHUB_REF" == refs/tags/* ]] || [ "$GITHUB_EVENT_NAME" = "release" ]; then
+            npm run prebuild -- --strip --all --arch ${{ matrix.arch }} -u "${{ secrets.GITHUB_TOKEN }}"
+          else
+            npm run prebuild -- --strip --all --arch ${{ matrix.arch }}
+          fi
+
+  prebuild-windows:
+    name: Prebuild Binaries for Windows (Node ${{ matrix.node-version }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["18.x", "20.x", "22.x"]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
+      - run: npm i
+      - name: Prebuild
+        shell: pwsh
+        run: |
+          npm run apply-patches
+          if ($env:GITHUB_EVENT_NAME -eq 'push' -and $env:GITHUB_REF -eq 'refs/heads/main') {
+            npm run prebuild -- --strip --all --arch ia32 -u "${{ secrets.GITHUB_TOKEN }}"
+            npm run prebuild -- --strip --all --arch x64 -u "${{ secrets.GITHUB_TOKEN }}"
+          } else {
+            npm run prebuild -- --strip --all --arch ia32
+            npm run prebuild -- --strip --all --arch x64
+          }

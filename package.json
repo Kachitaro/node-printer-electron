@@ -14,7 +14,8 @@
   "scripts": {
     "install": "prebuild-install || node-gyp rebuild",
     "rebuild": "node-gyp rebuild",
-    "release": "node-pre-gyp-github publish --release --commitish main",
+    "release": "npx node-pre-gyp-github publish --release",
+    "release-main": "node -e \"new (require('node-pre-gyp-github'))({ command: 'publish', release: true, commitish: 'main' });\"",
     "electron-rebuild": "node-gyp rebuild --target_platform=win32 --target_arch=x64  --runtime=electron --target=32.2.0 --dist-url=https://electronjs.org/headers",
     "test": "node --test \"test/**/*.test.js\""
   },
