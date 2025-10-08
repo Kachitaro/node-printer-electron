@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "main": "./lib/index.js",
   "types": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kachitaro/node-printer-electron.git"
+  },
   "dependencies": {
     "node-addon-api": "^8.1.0"
   },
@@ -17,7 +21,9 @@
   "binary": {
     "module_name": "node-printer-electron",
     "module_path": "./lib/",
-    "remote_path": "v{version}"
+    "host": "https://github.com/Kachitaro/node-printer-electron/releases/download/",
+    "remote_path": "v{version}",
+    "tag_path": "https://github.com/Kachitaro/node-printer-electron/releases/tag/v{version}"
   },
   "licenses": [
     {
